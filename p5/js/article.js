@@ -30,7 +30,7 @@ fetch(url)
                     "<input type='radio' name='coleur' name='coleur"+ i + "'> "+data[i].colors[j]+" </td>";                 
                 } 
                 "</tr>";          
-                inforationProduit.innerHTML+="<tr><td class='h4'>"+data[i].price+" &euro;</td></tr>";
+                inforationProduit.innerHTML+="<tr><td class='h4'>"+data[i].price/100+" &euro;</td></tr>";
                 
                 
                                                                            

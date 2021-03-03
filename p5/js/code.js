@@ -21,7 +21,7 @@ fetch(url)
     .then(data => {
         for (let i = 0; i < ours.length; i++) {
             ours[i].src = data[i].imageUrl;
-            prixO[i].innerHTML = data[i].price + " &euro;";
+            prixO[i].innerHTML = data[i].price/100 + " &euro;";
             nomO[i].innerHTML = "<strong>" + data[i].name + "</strong>";//nomOurs
                    
 
