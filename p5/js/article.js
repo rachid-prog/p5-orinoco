@@ -1,5 +1,10 @@
-let imageAfficher              =  document.querySelector(".image");
-let inforationProduit         =  document.querySelector(".table");
+let imageAfficher       =  document.querySelector(".image");
+let inforationProduit   =  document.querySelector(".table");
+let contenuPanier       = document.querySelector(".contenuPanier");
+let ajouterAuPanier     = document.querySelector(".ajouterAuPanier");
+let panier =document.querySelector(".panier");                    
+
+
 
 
 //champs selecte chifre de 0 à 20.
@@ -11,8 +16,6 @@ for(let i=0;i<=20;i++){
 let parametre = new URLSearchParams(location.search);
 let url = parametre.get("url");
 let id  = parametre.get("code");
-let plus =parametre.get("plus")
-
 fetch(url)
     .then(rep => rep.json())
     .then(data => {
@@ -20,10 +23,45 @@ fetch(url)
             if(id === data[i]._id && data[i].colors){                                
                 imageAfficher.src=data[i].imageUrl;
                 inforationProduit.innerHTML = "<tr><td class='h3'>"+data[i].name+"</td></tr>"+
-                "<tr><td class='h5'>"+data[i].description+"</td></tr>"+            
-                "<tr><td>"+data[i].colors+"</td></tr>"+              
-                "<tr><td>"+data[i].price+" &euro;</td></tr>";          
-              
+                "<tr><td class='h5'>"+data[i].description+"</td></tr>";
+                "<tr";
+                for(let j =0;j<data[i].colors.length;j++){           
+                    inforationProduit.innerHTML += "<td>"+
+                    "<input type='radio' name='coleur' name='coleur"+ i + "'> "+data[i].colors[j]+" </td>";                 
+                } 
+                "</tr>";          
+                inforationProduit.innerHTML+="<tr><td class='h4'>"+data[i].price+" &euro;</td></tr>";
+                
+                
+                                                                           
+                ajouterAuPanier.addEventListener("click",function(){
+                        localStorage.setItem(id,nombre.value);
+                        contenuPanier.innerHTML=localStorage.getItem(id);
+                        let totaleArticle =0;
+                        let idAchat = ["5beaa8bf1c9d440000a57d94","5beaacd41c9d440000a57d97","5be9c8541c9d440000665243","5beaaa8f1c9d440000a57d95","5beaabe91c9d440000a57d96"]
+                        
+                        for(let i=0;i<data.length;i++){
+                            for(let j=0;j<localStorage.length;j++){
+                                if(localStorage.key(j)===data[i]._id){                                    
+                                  totaleArticle+=JSON.parse(localStorage.getItem(data[i]._id));
+                                   
+                                }                                
+                                
+                            }
+
+                        }
+                        localStorage.setItem("totale",totaleArticle);
+                        
+                          
+
+                                          
+                    
+                        
+                        
+
+                    
+                   
+                });        
             }
             else if(id === data[i]._id && data[i].lenses){
                 imageAfficher.src=data[i].imageUrl;
@@ -41,68 +79,12 @@ fetch(url)
             }
            
         }
-        
-        
+              
     })
     .catch(err = function () {        
-             console.log("Erreur");         
+             console.log("Erreur");        
     })
-
-
-// let produitsPresCommander   = document.querySelector(".produitsPresCommander");
-// let image                   = document.querySelector(".image");
-// let table                   = document.querySelector("table");
-// let prixTotale              = document.querySelector(".prixTotale");
-// let nombreArticle           = document.querySelector('#nombre');
-// let ajouterAuPanier         = document.querySelector(".ajouterAuPanier ");
-// let form                    = document.querySelector("form");
-// let commander               = document.querySelector(".commander");
-// let panier                  = document.querySelector(".panier");
-// //Récupération id de l'article
-// var idString =location.search;
-// let idTableau =idString.split("=");
-// let id = idTableau[1];
-// //Conversion en objet 
-// let idObjet = JSON.parse(localStorage.getItem(id));
-// //Affichage article selectionner:
-// image.src = idObjet.imageUrl
-// table.innerHTML = "<tr><td>"+idObjet.name+"</td></tr>"+
-//                 "<tr><td>"+idObjet.description+"</td></tr>"+
-//                 "<tr><td>"+idObjet.price+" &euro;</td></tr>";
-
-// nombreArticle.addEventListener('input',function(){
-//     prixTotale.innerHTML = nombreArticle.value * idObjet.price;
-// });
-// //Sauvgarder les commander
-// let articleCommander={};
-// commander.addEventListener("click",function(){               
-//         articleCommander.nom    = idObjet.name;
-//         articleCommander.id     = idObjet._id;
-//         articleCommander.image  = idObjet.imageUrl;
-//         articleCommander.prixT  = nombreArticle.value * idObjet.price;
-//         localStorage.setItem(idObjet.name,JSON.stringify(articleCommander));   
-//     });
-
-// //Compteur d'article
-// let cpt = 0   
-// let tab=[];
-// let articlePresent = ["Norbert","Arnold", "Gustav","Garfunkel","Lenny and Carl"];
-// for(let i=0;i<localStorage.length;i++){
-//     tab.push(localStorage.key(i));
-// }
-// for(let i=0;i<articlePresent.length;i++){
-//   if(tab.includes(articlePresent[i])){
-//       cpt++;
-//   }
-// }
-// localStorage.setItem("cmpteur",cpt)
-// panier.innerHTML=cpt
-
-
-
-
-
-
+contenuPanier.innerHTML=localStorage.getItem(id);
 
 
 

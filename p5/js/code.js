@@ -4,7 +4,7 @@ let prixO = document.querySelectorAll(".prixO");
 let nomO = document.querySelectorAll(".nomO");
 let produits = document.querySelector(".produits");
 let a = document.querySelectorAll(".infos");
-let objetAcheter;
+let panier = document.querySelector('.panier')
 
 //Vérification paramétre du url.
 let url;
@@ -27,11 +27,12 @@ fetch(url)
 
         }
         for (let j = 0; j < a.length; j++) {
-            a[j].addEventListener("click", function () {
-                localStorage.setItem(data[j]._id,JSON.stringify(data[j]));
+            a[j].addEventListener("click", function () {                
                 this.href="produits.html?code="+data[j]._id+"&url="+url;
             });
+
         }
+         
     })
     .catch(err = function () {
         for (let i = 0; i < ours.length; i++) {
@@ -39,7 +40,14 @@ fetch(url)
          }
     })
 
-    
+
+//Afficher totale du article acheter:
+panier.innerHTML = JSON.parse(localStorage.getItem("totale"));
+
+
+
+
+
 
 
 
