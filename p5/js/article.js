@@ -2,11 +2,8 @@ let imageAfficher       =  document.querySelector(".image");
 let inforationProduit   =  document.querySelector(".table");
 let contenuPanier       = document.querySelector(".contenuPanier");
 let ajouterAuPanier     = document.querySelector(".ajouterAuPanier");
-let panier =document.querySelector(".panier");                    
-
-
-
-
+let panier =document.querySelector(".panier"); 
+let articleCommander;                  
 //champs selecte chifre de 0 à 20.
 let nombre = document.querySelector("#nombre");
 for(let i=0;i<=20;i++){
@@ -30,37 +27,25 @@ fetch(url)
                     "<input type='radio' name='coleur' name='coleur"+ i + "'> "+data[i].colors[j]+" </td>";                 
                 } 
                 "</tr>";          
-                inforationProduit.innerHTML+="<tr><td class='h4'>"+data[i].price/100+" &euro;</td></tr>";
+                inforationProduit.innerHTML+="<tr><td class='h4'>"+data[i].price+" &euro;</td></tr>";
                 
                 
                                                                            
                 ajouterAuPanier.addEventListener("click",function(){
-                        localStorage.setItem(id,nombre.value);
-                        contenuPanier.innerHTML=localStorage.getItem(id);
-                        let totaleArticle =0;
-                        let idAchat = ["5beaa8bf1c9d440000a57d94","5beaacd41c9d440000a57d97","5be9c8541c9d440000665243","5beaaa8f1c9d440000a57d95","5beaabe91c9d440000a57d96"]
-                        
+                    let tabInfos = [{prixUnArticle:data[i].price/100},{article:nombre.value},{nom:data[i].name}];                    
+                    localStorage.setItem(data[i]._id,JSON.stringify(tabInfos));
+                    contenuPanier.innerHTML= JSON.parse(localStorage.getItem(id))[1].article;          
+                                       
+                        let totaleArticle =0;                       
                         for(let i=0;i<data.length;i++){
                             for(let j=0;j<localStorage.length;j++){
-                                if(localStorage.key(j)===data[i]._id){                                    
-                                  totaleArticle+=JSON.parse(localStorage.getItem(data[i]._id));
-                                   
-                                }                                
-                                
+                                if(localStorage.key(j)===data[i].name){                                    
+                                  totaleArticle+=Number(JSON.parse(localStorage.getItem(id))[1].article);                                    
+                                }                                 
                             }
 
                         }
-                        localStorage.setItem("totale",totaleArticle);
-                        
-                          
-
-                                          
-                    
-                        
-                        
-
-                    
-                   
+                                           
                 });        
             }
             else if(id === data[i]._id && data[i].lenses){
@@ -84,9 +69,11 @@ fetch(url)
     .catch(err = function () {        
              console.log("Erreur");        
     })
-contenuPanier.innerHTML=localStorage.getItem(id);
-
-
+if(localStorage.getItem(id)){
+    contenuPanier.innerHTML= JSON.parse(localStorage.getItem(id))[1].article;
+}else{
+    contenuPanier.innerHTML="0";
+}
 
 
 

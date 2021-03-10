@@ -5,7 +5,7 @@ let nomO = document.querySelectorAll(".nomO");
 let produits = document.querySelector(".produits");
 let a = document.querySelectorAll(".infos");
 let panier = document.querySelector('.panier')
-
+panier.innerHTML =0;
 //Vérification paramétre du url.
 let url;
 let parametre = new URLSearchParams(location.search);
@@ -40,9 +40,15 @@ fetch(url)
          }
     })
 
+//Afficher totale du article a acheter:
+let nombreTotaleArticle = 0;
+for(let i=0;i<localStorage.length;i++){
+    nombreTotaleArticle += Number(JSON.parse(localStorage.getItem(localStorage.key(i)))[1].article);    
+}
+panier.innerHTML=nombreTotaleArticle;
 
-//Afficher totale du article acheter:
-panier.innerHTML = JSON.parse(localStorage.getItem("totale"));
+
+
 
 
 
