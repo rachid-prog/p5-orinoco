@@ -1,150 +1,105 @@
-let panier = document.querySelector(".panier");
-let prixTotale = document.querySelector(".totalePrix");
-let articlesAfficher = document.querySelector(".articles");
-function suprimerArticle(delId){
-    localStorage.removeItem(delId);
-    location.reload()
+let panier = document.querySelector('.panier');
+let articlesAfficher = document.querySelector('.articlesAfficher');
+let listeArticles = [];//listes des noms de tous les articles exemple ours.
+let lienURL = JSON.parse(localStorage.getItem("article")).lien;//Recuperer le lien d'un objet ici ours http://localhost:3000/api/teddies
+let totalePrix = document.querySelector('.totalePrix');
+let totaleArticle=0;//Nombre article
+let prixTotaleArticle=0;
+let texte = document.querySelectorAll(".texte");//formulaire nom+prenom+ville
+let adresse = document.querySelector(".adresse");
+let nomReg = /^[a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+([-'\s][a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+)?$/;
+let adresseReg=/^[0-9]{1,3} [a-zA-ZéèîïÉÈÎÏ]+ [a-zA-ZéèîïÉÈÎÏ]+ [a-zéèêàçîï]+([-'\s][a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+)?$/;
+let tableauID =[];
+let tableauNom=[];
+let panierVide = document.querySelector('.panierVide');//Titre pricipale
+let hidden = document.querySelector(".hidden");//h2 et formulaire
+let forms = document.querySelector("#forms");
+let email = document.querySelector("#email")
+let validerCommande = document.querySelector(".validerCommande");
+panier.innerHTML=0;
+function retirerOuAjouterUnArticle(nbr,nom){//Retirer des articles
+    localStorage.setItem(nom,nbr);
+    totaleArticle=0;
+    for(let i=0;i<localStorage.length;i++){//Calculer le nombre article commander
+        for(let j=0;j<listeArticles.length;j++){
+            if(localStorage.key(i)==listeArticles[j]){
+               totaleArticle+=Number(localStorage.getItem(localStorage.key(i)));
+            }
+        }
+    }  
+    localStorage.setItem("somme",totaleArticle);//Sauvgarder le nombre des articles commander
+    panier.innerHTML=localStorage.getItem("somme");
+    location.reload();
 }
-function retirerUnArticle(valeur,id){  
-    let obj = JSON.parse(localStorage.getItem(id));  
-    obj[1].article=valeur;
-    nombreTotaleArticle = 0;
-    prix=0;
-    localStorage.setItem(id,JSON.stringify(obj));
-    for(let i=0;i<localStorage.length;i++){
-        nombreTotaleArticle += Number(JSON.parse(localStorage.getItem(localStorage.key(i)))[1].article);
-        prix+=JSON.parse(localStorage.getItem(localStorage.key(i)))[0].prixUnArticle*JSON.parse(localStorage.getItem(localStorage.key(i)))[1].article
-    }
-    panier.innerHTML=nombreTotaleArticle;
-    prixTotale.innerHTML=prix;
-}
-//Appel API
-fetch("http://localhost:3000/api/teddies")
+function suprimerArticle(nom){  //Suprimer articles    
+    localStorage.setItem("somme",Number(localStorage.getItem("somme"))-Number(localStorage.getItem(nom)));
+    localStorage.removeItem(nom);//Suprimer un aticle;
+    location.reload();
+}  
+fetch(lienURL)
     .then(rep=>rep.json())
     .then(data=>{
         for(let i=0;i<data.length;i++){
-            for(let j=0;j<localStorage.length;j++){
-                if(data[i]._id == localStorage.key(j)){
-                    articlesAfficher.innerHTML+="<img class='img-fluid img-thumbnail col-4 mt-2' src='"+
-                    data[i].imageUrl+"'>"+
-                    "<div class='col-8'><table class='table table-dark mt-4 text-center'>"+
-                    "<tr><td>Nom</td><td>Prix</td><td colspan='2'>Quantité</td>"+
-                    "<tr><td>"+data[i].name+"</td>"+
-                    "<td>"+data[i].price/100+" &euro;</td>"+
-                    "<td><input onclick=\"retirerUnArticle(this.value"+",'"+data[i]._id+"')\" type='number'class='w-25 text-center ml-4' min='0' value='"+
-                    JSON.parse(localStorage.getItem(data[i]._id))[1].article+"'></td>"+
-                    "<td><span class='btn btn-info' onclick=\"suprimerArticle("+"'"+data[i]._id+"')\">"+
-                    "<i class='fas fa-trash-alt'></i></td></tr></span>"+
-                    "</div>";                    
-                }
-            }
+            listeArticles.push(data[i].name);
+        }
+      for(let i=0;i<localStorage.length;i++){
+            for(let j=0;j<listeArticles.length;j++){                
+                if(listeArticles[j]==localStorage.key(i)){         
+                         articlesAfficher.innerHTML+= "<tr><td class='h5'>"+localStorage.key(i)+"</td>"+
+                        "<td class='h4 text-info'>" + data[j].price / 100 + " &euro;</td>" +
+                        "<td><input onclick=\"retirerOuAjouterUnArticle(this.value" + ",'" + localStorage.key(i)+"',"+data[j].price+")\" type='number'class='w-25 text-center ml-4' min='0' value='" + localStorage.getItem(localStorage.key(i)) + "'></td>" +
+                        "<td><span class='btn btn-info'><span  onclick=\"suprimerArticle(" + "'" + localStorage.key(i) + "')\"><i class='fas fa-trash-alt'></i></span></td></tr></div>";
+                        totaleArticle+=Number(localStorage.getItem(localStorage.key(i)));
+                        localStorage.setItem("somme",totaleArticle);
+                        prixTotaleArticle+=data[j].price/100 * JSON.parse(localStorage.getItem(localStorage.key(i)));
+                        tableauID.push(data[j]._id);
+                        tableauNom.push(data[j].name);
+                }       
+                    
+            }             
+        }
+        localStorage.setItem("prixTotale", prixTotaleArticle);
+        localStorage.setItem("id",JSON.stringify(tableauID))
+        totalePrix.innerHTML=localStorage.getItem("prixTotale");
+        if(tableauNom.length==0){//Afficher un message si le panier est vide
+            articlesAfficher.innerHTML="<p class='h1 text-info'>Votre panier est vide</p><img src='../images/panierVide.jpg'>";
+            hidden.innerHTML=''
         }
     })
-    .catch(err = function () {
-        console.log("Erreur");
-    })
-//Afficher totale du article a acheter:
-let nombreTotaleArticle = 0;
-let prix =0;
-for(let i=0;i<localStorage.length;i++){
-    nombreTotaleArticle += Number(JSON.parse(localStorage.getItem(localStorage.key(i)))[1].article);
-    prix+=JSON.parse(localStorage.getItem(localStorage.key(i)))[0].prixUnArticle*JSON.parse(localStorage.getItem(localStorage.key(i)))[1].article
+    .catch(err=> console.log("Erreur API"));
+panier.innerHTML=localStorage.getItem("somme") ;  
+//Validation du formulaire: 
+let infosUtilisateur=[0,1,2,3];
+for(let i=0;i<texte.length;i++){//validation :nom+prenom+ville
+        texte[i].addEventListener("input",function(){           
+            if(nomReg.test(this.value)){
+                this.classList.add("is-valid");
+                this.classList.remove("is-invalid");
+                infosUtilisateur[i] =this.value;//sauvgarder nom+prenom+ville
+                localStorage.setItem('infosUtilisateur',JSON.stringify(infosUtilisateur))
+            }
+            else{
+                this.classList.remove("is-valid");
+                this.classList.add("is-invalid");
+            }
+        })
 }
-panier.innerHTML=nombreTotaleArticle; 
-//Prix totale
-prixTotale.innerHTML=prix;
-//Validation formulaire:
-let texte    = document.querySelectorAll(".texte");//[nom-prenom-ville]
-let nomReg = /^[a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+([-'\s][a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+)?$/;
-for(let i=0;i<texte.length;i++){
-    texte[i].addEventListener("input",function(){
-       
-        if(nomReg.test(this.value)){
-            this.classList.add("is-valid")
-            this.classList.remove("is-invalid")
+adresse.addEventListener("input",function(){  //validation adresse ville.         
+        if(adresseReg.test(this.value)){
+            this.classList.add("is-valid");
+            this.classList.remove("is-invalid");
+            infosUtilisateur[3] =this.value;//sauvgarder adresse ville            
         }
         else{
-            this.classList.remove("is-valid")
-            this.classList.add("is-invalid")
+            this.classList.remove("is-valid");
+            this.classList.add("is-invalid");
         }
-    })
-}
-
-//Validation de la commande:
-let tabId=[];//Idetifiant des commandes.
-for(let i=0;i<localStorage.length;i++){
-    tabId.push(localStorage.key(i));
-}
-   
-// let hidden = document.querySelector(".hidden")
-let form = document.querySelector("#forms")   
-let validerCommande =document.querySelector(".validerCommande")
-let prenom  = document.querySelector("#lName");
-let nom     = document.querySelector("#fName");
-let email   = document.querySelector("#email");
-let adresse = document.querySelector("#adresse");
-let ville   = document.querySelector("#pays");
-let numerCommande = document.querySelector(".numerCommande");
-let hidden = document.querySelector('.hidden')
-let informationDuCommande = {
-                            "contact" : {
-                                "firstName": "",
-                                "lastName" : "",
-                                "address"  : "",
-                                "city"     : "",
-                                "email"    : ""
-                                },
-                                "products": tabId
-}
-validerCommande.addEventListener("click",(e)=>{
-    if(localStorage.length!=0){
-        e.preventDefault()
-        informationDuCommande.contact.firstName=nom.value;
-        informationDuCommande.contact.lastName=prenom.value;
-        informationDuCommande.contact.address=adresse.value;
-        informationDuCommande.contact.city=ville.value;
-        informationDuCommande.contact.email=email.value;
-        fetch("http://localhost:3000/api/teddies/order",{
-                    method:"POST",
-                    headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify(informationDuCommande)
-                }
-                )
-                .then(rep=>rep.json())
-                .then(data=>{
-                    localStorage.clear();
-                    numerCommande.innerHTML="<table class='table text-center mt-4' ><tr><td>Merci "+ prenom.value+"</td></tr>"+
-                    "<tr class='table-warning'><td> Votre commande N°</td></tr>"+
-                    "<tr><td>"+data.orderId+"</td></tr>"+
-                    "<tr><td> est validée <span class='btn btn-success'><i class='fas fa-check'></i><span></td></tr>"+
-                    "<tr><td><button  class='btn btn-info'><a href='index.html'>Retour à l'acceuil</a></button></td></tr></table><div>"
-                    articlesAfficher.innerHTML="";
-                    hidden.innerHTML="";
-                    numerCommande.parentNode.classList.remove("col-md-6");
-                    panier.innerHTML="0";
-
-                })
-                .catch(err=>console.log("Erreur"));
-            }
-
-           
-           
-    
 })
-if(localStorage.length==0){
-    numerCommande.innerHTML="<h1 class='my-5'>Orinico</h1><h2 class='my-5'>Votre panier est vide</h2>";
-    hidden.innerHTML="";
-}
+email.addEventListener("input",()=>{
+    infosUtilisateur[4]=email.value
+})
+forms.action+="?prix="+JSON.parse(localStorage.getItem("prixTotale"));
 
-    
-    
-    
-    
-   
-
-
-
-    
 
 
 

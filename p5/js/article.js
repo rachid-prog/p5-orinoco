@@ -1,93 +1,46 @@
-let imageAfficher       =  document.querySelector(".image");
-let inforationProduit   =  document.querySelector(".table");
-let contenuPanier       = document.querySelector(".contenuPanier");
-let ajouterAuPanier     = document.querySelector(".ajouterAuPanier");
-let panier =document.querySelector(".panier"); 
-let articleCommander;                  
-//champs selecte chifre de 0 à 20.
-let nombre = document.querySelector("#nombre");
-for(let i=0;i<=20;i++){
-    nombre.innerHTML+="<option value='"+i+"'>"+i+"</option>"
+let afficherArticleSelectionner = document.querySelector(".afficherArticleSelectionner");
+let panierArticle = document.querySelector('.panierArticle');
+let prixFinaleDesArticles = 0;
+//initialiser la valeur du panier
+panierArticle.innerHTML="0";
+//construit la valeur JavaScript ou l'objet décrit par une chaîne.
+function conversion(obj){        
+    return JSON.parse(obj)
 }
-//recupere code et url de l'article sélectionner.
-let parametre = new URLSearchParams(location.search);
-let url = parametre.get("url");
-let id  = parametre.get("code");
-fetch(url)
-    .then(rep => rep.json())
-    .then(data => {
-        for(let i =0;i<data.length;i++){
-            if(id === data[i]._id && data[i].colors){                                
-                imageAfficher.src=data[i].imageUrl;
-                inforationProduit.innerHTML = "<tr><td class='h3'>"+data[i].name+"</td></tr>"+
-                "<tr><td class='h5'>"+data[i].description+"</td></tr>";
-                "<tr";
-                for(let j =0;j<data[i].colors.length;j++){           
-                    inforationProduit.innerHTML += "<td>"+
-                    "<input type='radio' name='coleur' name='coleur"+ i + "'> "+data[i].colors[j]+" </td>";                 
-                } 
-                "</tr>";          
-                inforationProduit.innerHTML+="<tr><td class='h4'>"+data[i].price+" &euro;</td></tr>";
-                
-                
-                                                                           
-                ajouterAuPanier.addEventListener("click",function(){
-                    let tabInfos = [{prixUnArticle:data[i].price/100},{article:nombre.value},{nom:data[i].name}];                    
-                    localStorage.setItem(data[i]._id,JSON.stringify(tabInfos));
-                    contenuPanier.innerHTML= JSON.parse(localStorage.getItem(id))[1].article;          
-                                       
-                        let totaleArticle =0;                       
-                        for(let i=0;i<data.length;i++){
-                            for(let j=0;j<localStorage.length;j++){
-                                if(localStorage.key(j)===data[i].name){                                    
-                                  totaleArticle+=Number(JSON.parse(localStorage.getItem(id))[1].article);                                    
-                                }                                 
-                            }
-
-                        }
-                                           
-                });        
-            }
-            else if(id === data[i]._id && data[i].lenses){
-                imageAfficher.src=data[i].imageUrl;
-                inforationProduit.innerHTML = "<tr><td class='h3'>"+data[i].name+"</td></tr>"+
-                "<tr><td class='h5'>"+data[i].description+"</td></tr>"+            
-                "<tr><td>"+data[i].lenses+"</td></tr>"+              
-                "<tr><td>"+data[i].price+" &euro;</td></tr>";
-            }
-            else if(id === data[i]._id && data[i].varnish){
-                imageAfficher.src=data[i].imageUrl;
-                inforationProduit.innerHTML = "<tr><td class='h3'>"+data[i].name+"</td></tr>"+
-                "<tr><td class='h5'>"+data[i].description+"</td></tr>"+            
-                "<tr><td>"+data[i].varnish+"</td></tr>"+              
-                "<tr><td>"+data[i].price+" &euro;</td></tr>";
-            }
-           
-        }
-              
-    })
-    .catch(err = function () {        
-             console.log("Erreur");        
-    })
-if(localStorage.getItem(id)){
-    contenuPanier.innerHTML= JSON.parse(localStorage.getItem(id))[1].article;
-}else{
-    contenuPanier.innerHTML="0";
+//nom de l'article et nombre article commander est sauvgarder.
+function nombreUnArticle(nom,nombre){
+    localStorage.setItem(nom,nombre);
+    panierArticle.innerHTML=nombre;
 }
+//Afficher le nombre article a commander
+function ajouterAuPanier(nom){
+    panierArticle.innerHTML=localStorage.getItem(nom);
+}
+if(localStorage.getItem("article")==null){
+    afficherArticleSelectionner.innerHTML="<div class='col-12 '><p class='h1 my-5'>Article n\'existe pas</p>"+
+    "<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s"+
+        " when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the "+
+        " leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset "+
+       " sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>";
+}
+else{
+    let article = conversion(localStorage.getItem("article"));          
+    fetch(article.lien)
+        .then(rep=>rep.json())
+        .then(data=>{
+            for(let i=0;i<data.length;i++){
+                if(data[i]._id == article.id){
+                    afficherArticleSelectionner.innerHTML="<div class='col-12 card shadow-lg'><img class='img-fluid  rounded' src='"+data[i].imageUrl+"'>"+ 
+                    "<div class='col-12 m-2 h4'><strong>"+data[i].name+"</strong></div><div class='col-12 m-2 '>"+data[i].description+"</div>"+
+                    "<div class='col-12 m-2 text-danger h2'>"+data[i].price/100+"&euro;</div><div class='input-group input-group-sm mb-3'><div class='input-group-prepend'>"+
+                    "<span class='input-group-text' id='inputGroup-sizing-sm'>Quantité</span></div>"+
+                    "<input onclick='nombreUnArticle(\""+data[i].name+"\",this.value)' type='number' class='form-control' aria-label='Small' aria-describedby='inputGroup-sizing-sm' min='0' value='"+localStorage.getItem(data[i].name)+"'></div>"+
+                    "<div class='col-12'><button onclick='ajouterAuPanier(\""+data[i].name+"\")' class='btn btn btn-secondary m-4'>Ajouter au panier</button><button class='btn btn-info'><a href='../index.html'>Reour à l'acceuil</a></button></div>"; 
+                    panierArticle.innerHTML=localStorage.getItem(data[i].name);
+               }
+            }
+        })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
 
