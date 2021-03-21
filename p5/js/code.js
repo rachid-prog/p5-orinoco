@@ -1,33 +1,37 @@
 let url=["http://localhost:3000/api/teddies","http://localhost:3000/api/cameras","http://localhost:3000/api/furniture"];//lien API donner par OC
 let titreProduits =["Ours en peluche faits à la main","Caméras vintage","Meubles en chêne"];//Donner par OC
-let choixTypeProduit = document.querySelectorAll(".choixTypeProduit");//Sur bouttons navigations[Ours-Caméras-Meubles]
+let choixTypeProduit = document.querySelectorAll(".choixTypeProduit");//Sur bouttons navigations header[Ours-Caméras-Meubles]
 let titre = document.querySelector(".titre");//Titre de produit
 let infoProduit=document.querySelector(".infoProduit");//[image-prix-nom]
 let panier = document.querySelector(".panier");
-let lienPanier = document.querySelector(".lienPanier");
+// let lienPanier = document.querySelector(".lienPanier");
 let totale=0;
 //initialiser la valeur du panier
 panier.innerHTML=0;
 let nomArticles =[];
-//Sauvgarder l'article selectionner
+//Afficher chaque produits au click sur boutons navigation
+for(let i=0;i<choixTypeProduit.length;i++){
+    choixTypeProduit[i].addEventListener("click",function(){
+        infoProduit.innerHTML="";//Initialiser valeur contenu a chaque click
+        afficher(url[i],titreProduits[i]);
+        console.log(url[i],titreProduits[i]);
+        
+    })
+}
+//Sauvgarder id article seléctionner et url des produits
 function sauvgargerArticleSelectionner(idArticle,lien){
         let infoObj={};
         infoObj.id = idArticle;
         infoObj.lien = lien;
         localStorage.setItem("article",JSON.stringify(infoObj));
-}
-//Afficher chaque produits au click sur boutons navigation
-for(let i=0;i<choixTypeProduit.length;i++){
-        choixTypeProduit[i].addEventListener("click",function(){
-            infoProduit.innerHTML="";//Initialiser valeur contenu a chaque click
-            afficher(url[i],titreProduits[i]);
-        })
+        console.log(JSON.stringify(infoObj))
+        
 }
 // API request:
 function afficher(lien,titrePourProduit){
     fetch(lien)
         .then(rep => rep.json())
-        .then(data => {
+        .then(data => {        	
             titre.innerHTML=titrePourProduit;//Afficher le titres des produits
             for(let i=0;i<data.length;i++){
                 infoProduit.innerHTML+="<div class='col-12 col-md-2 card m-4'><img class='card-img-top img-fluid'  src='"+data[i].imageUrl+"'>"+

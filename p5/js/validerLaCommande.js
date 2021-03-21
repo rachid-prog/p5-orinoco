@@ -1,6 +1,6 @@
 let panier = document.querySelector('.panier');
 let articlesAfficher = document.querySelector('.articlesAfficher');
-let listeArticles = [];//listes des noms de tous les articles exemple ours.
+let listeArticles = [];//listes des noms des articles d'un produit donner par OC.
 let lienURL = JSON.parse(localStorage.getItem("article")).lien;//Recuperer le lien d'un objet ici ours http://localhost:3000/api/teddies
 let totalePrix = document.querySelector('.totalePrix');
 let totaleArticle=0;//Nombre article
@@ -8,12 +8,13 @@ let prixTotaleArticle=0;
 let texte = document.querySelectorAll(".texte");//formulaire nom+prenom+ville
 let adresse = document.querySelector(".adresse");
 let nomReg = /^[a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+([-'\s][a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+)?$/;
-let adresseReg=/^[0-9]{1,3} [a-zA-ZéèîïÉÈÎÏ]+ [a-zA-ZéèîïÉÈÎÏ]+ [a-zéèêàçîï]+([-'\s][a-zA-ZéèîïÉÈÎÏ][a-zéèêàçîï]+)?$/;
+let adresseReg=/^[a-zA-Z0-9-\s]{2,100}$/;
+let emailReg=/^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,5}$/;
 let tableauID =[];
 let tableauNom=[];
 let panierVide = document.querySelector('.panierVide');//Titre pricipale
 let hidden = document.querySelector(".hidden");//h2 et formulaire
-let forms = document.querySelector("#forms");
+let form = document.querySelector("#form");
 let email = document.querySelector("#email")
 let validerCommande = document.querySelector(".validerCommande");
 panier.innerHTML=0;
@@ -23,7 +24,7 @@ function retirerOuAjouterUnArticle(nbr,nom){//Retirer des articles
     for(let i=0;i<localStorage.length;i++){//Calculer le nombre article commander
         for(let j=0;j<listeArticles.length;j++){
             if(localStorage.key(i)==listeArticles[j]){
-               totaleArticle+=Number(localStorage.getItem(localStorage.key(i)));
+               totaleArticle+=Number(localStorage.getItem(localStorage.key(i))); 
             }
         }
     }  
@@ -54,8 +55,7 @@ fetch(lienURL)
                         prixTotaleArticle+=data[j].price/100 * JSON.parse(localStorage.getItem(localStorage.key(i)));
                         tableauID.push(data[j]._id);
                         tableauNom.push(data[j].name);
-                }       
-                    
+                }         
             }             
         }
         localStorage.setItem("prixTotale", prixTotaleArticle);
@@ -67,38 +67,104 @@ fetch(lienURL)
         }
     })
     .catch(err=> console.log("Erreur API"));
-panier.innerHTML=localStorage.getItem("somme") ;  
-//Validation du formulaire: 
+panier.innerHTML=localStorage.getItem("somme") ;
 let infosUtilisateur=[0,1,2,3];
-for(let i=0;i<texte.length;i++){//validation :nom+prenom+ville
-        texte[i].addEventListener("input",function(){           
-            if(nomReg.test(this.value)){
-                this.classList.add("is-valid");
-                this.classList.remove("is-invalid");
-                infosUtilisateur[i] =this.value;//sauvgarder nom+prenom+ville
-                localStorage.setItem('infosUtilisateur',JSON.stringify(infosUtilisateur))
-            }
-            else{
-                this.classList.remove("is-valid");
-                this.classList.add("is-invalid");
-            }
-        })
-}
-adresse.addEventListener("input",function(){  //validation adresse ville.         
-        if(adresseReg.test(this.value)){
+//Vérification email
+email.addEventListener('change', function(){  
+   if(emailReg.test(this.value)){      
+       this.classList.add("is-valid");
+       this.classList.remove("is-invalid");
+       infosUtilisateur[4] = email.value
+   }
+   else{
+         this.classList.add("is-invalid");
+        this.classList.remove("is-valid");
+   }
+})
+//Vérification nom,prenom et ville
+for(let i=0;i<texte.length;i++){
+    texte[i].addEventListener('change',function(){
+        if(nomReg.test(this.value)){      
             this.classList.add("is-valid");
             this.classList.remove("is-invalid");
-            infosUtilisateur[3] =this.value;//sauvgarder adresse ville            
+            infosUtilisateur[i] = this.value;//sauvgarder nom+prenom+ville
+            localStorage.setItem('infosUtilisateur', JSON.stringify(infosUtilisateur));
         }
         else{
-            this.classList.remove("is-valid");
-            this.classList.add("is-invalid");
+              this.classList.add("is-invalid");
+             this.classList.remove("is-valid");
         }
+        
+    })
+}
+//vérification adresse ville.
+
+adresse.addEventListener("change",function(){
+    if(adresseReg.test(this.value)){      
+        this.classList.add("is-valid");
+        this.classList.remove("is-invalid");
+        infosUtilisateur[3] = this.value;//sauvgarder adresse ville 
+    }
+    else{
+          this.classList.add("is-invalid");
+         this.classList.remove("is-valid");
+    }
+
 })
-email.addEventListener("input",()=>{
-    infosUtilisateur[4]=email.value
-})
-forms.action+="?prix="+JSON.parse(localStorage.getItem("prixTotale"));
+
+
+
+
+
+
+
+
+
+
+
+
+//Validation du formulaire: 
+// let infosUtilisateur=[0,1,2,3];
+// for (let i = 0; i < texte.length; i++) {//validation :nom+prenom+ville
+//         texte[i].addEventListener("input", function (e) {
+//             if (nomReg.test(this.value)) {
+//                 this.classList.add("is-valid");
+//                 this.classList.remove("is-invalid");
+//                 infosUtilisateur[i] = this.value;//sauvgarder nom+prenom+ville
+//                 localStorage.setItem('infosUtilisateur', JSON.stringify(infosUtilisateur));
+                
+               
+                
+//             }
+//             else {
+//                 this.classList.remove("is-valid");
+//                 this.classList.add("is-invalid");
+               
+                 
+                
+               
+//             }
+//         })
+// }
+// adresse.addEventListener("input", function () {  //validation adresse ville.         
+//         if (adresseReg.test(this.value)) {
+//             this.classList.add("is-valid");
+//             this.classList.remove("is-invalid");
+//             infosUtilisateur[3] = this.value;//sauvgarder adresse ville            
+//         }
+//         else {
+//             this.classList.remove("is-valid");
+//             this.classList.add("is-invalid");
+//             erreur="Non valide";
+            
+//         }
+//     })
+// email.addEventListener("input", () => {
+//         infosUtilisateur[4] = email.value
+        
+//     })
+    
+
 
 
 

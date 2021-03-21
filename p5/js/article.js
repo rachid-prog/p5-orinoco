@@ -3,18 +3,15 @@ let panierArticle = document.querySelector('.panierArticle');
 let prixFinaleDesArticles = 0;
 //initialiser la valeur du panier
 panierArticle.innerHTML="0";
-//construit la valeur JavaScript ou l'objet décrit par une chaîne.
-function conversion(obj){        
-    return JSON.parse(obj)
-}
 //nom de l'article et nombre article commander est sauvgarder.
 function nombreUnArticle(nom,nombre){
-    localStorage.setItem(nom,nombre);
-    panierArticle.innerHTML=nombre;
+    localStorage.setItem(nom,nombre);    
 }
 //Afficher le nombre article a commander
-function ajouterAuPanier(nom){
+function ajouterAuPanier(nom){//nom est une chaine de caractère
     panierArticle.innerHTML=localStorage.getItem(nom);
+    console.log(localStorage.getItem(nom));
+    
 }
 if(localStorage.getItem("article")==null){
     afficherArticleSelectionner.innerHTML="<div class='col-12 '><p class='h1 my-5'>Article n\'existe pas</p>"+
@@ -24,7 +21,7 @@ if(localStorage.getItem("article")==null){
        " sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>";
 }
 else{
-    let article = conversion(localStorage.getItem("article"));          
+    let article = JSON.parse(localStorage.getItem("article"));          
     fetch(article.lien)
         .then(rep=>rep.json())
         .then(data=>{
@@ -40,6 +37,7 @@ else{
                }
             }
         })
+        
 
 }
 

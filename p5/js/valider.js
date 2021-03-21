@@ -29,6 +29,7 @@ fetch("http://localhost:3000/api/teddies/order",{
         "<p class='h4 my-4'>Commande N°: "+data.orderId+"</p>"+
         
         "<button onclick='effacer()' class='btn btn-info my-4'><a href='../index.html'>Retour à l\'accueil</a></button></div>";
+        console.log(data)
         
 
         
